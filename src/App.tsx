@@ -25,9 +25,7 @@ function secureShuffle(arr:Card[]):Card[] {
   return arr
 }  
 
-function App() {
-  console.log('app render');
-  const [cards, setCards] = useState<Card[] | undefined>(() => {
+const createDeck = () => {
         createDeckCallCount++;
         console.log("createDeck called", createDeckCallCount, "time(s)");
         if (didCreateDeck) {
@@ -43,21 +41,23 @@ function App() {
         ]))
         console.log(deck);
         return deck
-      })
+      }
   
-  
+const deck = createDeck()
 
+function App() {
+  console.log('app render');
+  const [cards, setCards] = useState<Card[] | undefined>(deck)
+  
   // const handleCardClick = (card: Card) => {
   //   onClick={() => handleCardClick(card)}
   // }
-  const content = cards.map((card) => {
+  const content = cards?.map((card) => {
       return <div key={card.id} >
                 {!card.isFlipped && card.value}
               </div>
   })
   
-  
-
   return (
     <>
       <div className=''>
