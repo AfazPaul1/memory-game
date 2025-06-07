@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 interface Card {
@@ -10,42 +10,68 @@ interface Card {
 
 const values = ["cat", "dog"]
 
+let createDeckCallCount = 0;
+let didCreateDeck = false;
 function secureShuffle(arr:Card[]):Card[] {
     //uint32 for cryptographically strong shuffles
     const randomValues = new Uint32Array(arr.length)
     crypto.getRandomValues(randomValues)
-    console.log(randomValues);
-    console.log([...arr]);
+    //console.log(randomValues);
+    //console.log([...arr]);
     
     for (let i = arr.length-1; i > 0; i--) {
       const j = randomValues[i] % (i+1);
-      console.log(randomValues[i], i+1,i, j);
+      //console.log(randomValues[i], i+1,i, j);
       
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    console.log(arr);
+    //console.log(arr);
     
 
     return arr
   }  
 
 function App() {
+ console.log('app render');
  
   const [cards, setCards] = useState<Card[]>([])
-
   const createDeck = () => {
-    //removed flatmap note
-    return secureShuffle(values.flatMap((value) => [
-      {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
-      {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
-    ]))
-  }
-  createDeck()
+      createDeckCallCount++;
+      console.log("createDeck called", createDeckCallCount, "time(s)");
+      if (didCreateDeck) {
+        console.warn("createDeck called AGAIN! This should only run once per app load!");
+      } else {
+        console.log("createDeck running for the first time");
+        didCreateDeck = true;
+      }
+      const deck =  secureShuffle(values.flatMap((value) => [
+        {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
+        {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
+      ]))
+      console.log(deck);
+      return deck
+    }
+  useEffect(()=> {
+    const deck = createDeck()
+    setCards(deck)
+  }, [])
+
+  // const handleCardClick = (card: Card) => {
+  //   onClick={() => handleCardClick(card)}
+  // }
+  const content = cards.map((card) => {
+      return <div key={card.id} >
+                {!card.isFlipped && card.value}
+              </div>
+  })
+  
   
 
   return (
     <>
-      
+      <div className=''>
+        {content}
+      </div>
     </>
   )
 }
