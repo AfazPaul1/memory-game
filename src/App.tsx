@@ -10,8 +10,7 @@ interface Card {
 
 const values = ["cat", "dog"]
 
-let createDeckCallCount = 0;
-let didCreateDeck = false;
+
 function secureShuffle(arr:Card[]):Card[] {
     
   const randomValues = new Uint32Array(arr.length)
@@ -25,35 +24,22 @@ function secureShuffle(arr:Card[]):Card[] {
   return arr
 }  
 
-const createDeck = () => {
-        createDeckCallCount++;
-        console.log("createDeck called", createDeckCallCount, "time(s)");
-        if (didCreateDeck) {
-          console.warn("createDeck called AGAIN! This should only run once per app load!");
-          return
-        } else {
-          console.log("createDeck running for the first time");
-          didCreateDeck = true;
-        }
+function App() {
+  
+  const [cards, setCards] = useState<Card[] | undefined>(() => {
         const deck =  secureShuffle(values.flatMap((value) => [
           {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
           {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
         ]))
-        console.log(deck);
         return deck
-      }
-  
-const deck = createDeck()
-
-function App() {
-  console.log('app render');
-  const [cards, setCards] = useState<Card[] | undefined>(deck)
+      })
   
   // const handleCardClick = (card: Card) => {
   //   onClick={() => handleCardClick(card)}
   // }
   const content = cards?.map((card) => {
       return <div key={card.id} >
+        
                 {!card.isFlipped && card.value}
               </div>
   })
