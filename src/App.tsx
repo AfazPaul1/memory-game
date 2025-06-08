@@ -25,67 +25,72 @@ function secureShuffle(arr:Card[]):Card[] {
 }  
 
 function App() {
-  
-  const [cards, setCards] = useState<Card[] | undefined>(() => {
+  const createDeck = () => {
         const deck =  secureShuffle(values.flatMap((value) => [
           {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
           {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
         ]))
         return deck
-      })
+      }
+  const [cards, setCards] = useState<Card[] | undefined>(createDeck())
   const [flipped, setFlipped] = useState<Card[]>([])
   //tracks the currently flipped cards
-   const [lockBoard, setLockBoard] = useState(false)
-   const handleCardClick = (clickedCard: Card) => {
-    if (clickedCard.isFlipped || clickedCard.isMatched || lockBoard) {
-      return
-    } 
-    //card.isFlipped = true
-    //not the way to do it
-    //refer updating objects inside arrays learn react article
-    setCards(cards?.map(card => {
-      if (card.id === clickedCard.id) {
-        return {...card, isFlipped: true}
-      } else {
-        return card
-      }
-    }))
-    setFlipped([...flipped, clickedCard])
-   }
+  const [lockBoard, setLockBoard] = useState(false)
 
-   useEffect(() => {
-    if(flipped.length === 2){
-      setLockBoard(true)
-      if(flipped[0].value === flipped[1].value) {
-          const value = flipped[0].value
-          setCards(cards?.map(card => {
-          if (card.value === value) {
-            return {...card, isMatched: true}
-          } else {
-            return card
-          }
-          }))
-          setFlipped([])
-          setLockBoard(false)
-      }
-      else {
-        setTimeout(() => {
-          setCards(cards?.map(card => {
-          if (card.id === flipped[0].id || flipped[1].id) {
-            return {...card, isFlipped:false}
-          } else {
-            return card
-          }
-        }))
-        setFlipped([])
-        setLockBoard(false)
-        }, 2000)
-        
-      }
+  const handleCardClick = (clickedCard: Card) => {
+  if (clickedCard.isFlipped || clickedCard.isMatched || lockBoard) {
+    return
+  } 
+  //card.isFlipped = true
+  //not the way to do it
+  //refer updating objects inside arrays learn react article
+  setCards(cards?.map(card => {
+    if (card.id === clickedCard.id) {
+      return {...card, isFlipped: true}
+    } else {
+      return card
     }
-   }, [flipped])
+  }))
+  setFlipped([...flipped, clickedCard])
+  }
+  const reset = () => {
+    setFlipped([])
+    setLockBoard(false)
+  }
+  const matched = () => {
+  const value = flipped[0].value
+        setCards(cards?.map(card => {
+        if (card.value === value) {
+          return {...card, isMatched: true}
+        } else {
+          return card
+        }
+        }))
+        reset()
+  }
+  const notMatched = () => {
+  setTimeout(() => {
+        setCards(cards?.map(card => {
+        if (card.id === flipped[0].id || flipped[1].id) {
+          return {...card, isFlipped:false}
+        } else {
+          return card
+        }
+      }))
+      reset()
+      }, 500)
+  }
+  const valuesAreEqual = flipped[0]?.value === flipped[1]?.value
 
-  const content = cards?.map((card) =>  <Card key={card.id} onClick={() => handleCardClick(card)} value={card.value} isFlipped={card.isFlipped} isMatched={card.isMatched}  />)
+  useEffect(() => {
+  if(flipped.length === 2){
+    setLockBoard(true)
+    if(valuesAreEqual) matched()
+    else notMatched()  
+  }
+  }, [flipped])
+
+const content = cards?.map((card) =>  <Card key={card.id} onClick={() => handleCardClick(card)} value={card.value} isFlipped={card.isFlipped} isMatched={card.isMatched}  />)
   
   return (
     <>
