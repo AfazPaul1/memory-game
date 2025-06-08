@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import './App.css'
+import { Card } from './components/Card'
 
 interface Card {
     id:string,
@@ -8,8 +9,7 @@ interface Card {
     isMatched: boolean
   }
 
-const values = ["cat", "dog"]
-
+const values = ["cat", "dog", "cow", "chicken", "donkey"]
 
 function secureShuffle(arr:Card[]):Card[] {
     
@@ -33,20 +33,32 @@ function App() {
         ]))
         return deck
       })
-  
-  // const handleCardClick = (card: Card) => {
-  //   onClick={() => handleCardClick(card)}
-  // }
-  const content = cards?.map((card) => {
-      return <div key={card.id} >
-        
-                {!card.isFlipped && card.value}
-              </div>
-  })
+  const [flipped, setFlipped] = useState<Card[]>([])
+  //tracks the currently flipped cards
+   
+   const handleCardClick = (clickedCard: Card) => {
+    if (clickedCard.isFlipped || clickedCard.isMatched) {
+      return
+    } 
+    //card.isFlipped = true
+    //not the way to do it
+    //refer updating objects inside arrays learn react article
+    setCards(cards?.map(card => {
+      if (card.id === clickedCard.id) {
+        return {...card, isFlipped: true}
+      } else {
+        return card
+      }
+    }))
+    setFlipped([...flipped, clickedCard])
+   }
+
+
+  const content = cards?.map((card) =>  <Card key={card.id} onClick={() => handleCardClick(card)} value={card.value} isFlipped={card.isFlipped} isMatched={card.isMatched}  />)
   
   return (
     <>
-      <div className=''>
+      <div className='grid grid-cols-4 gap-3 p-3 justify-items-center' >
         {content}
       </div>
     </>
