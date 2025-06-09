@@ -1,4 +1,4 @@
-import {  useCallback, useEffect, useState } from 'react'
+import {  useCallback, useEffect, useState, useRef } from 'react'
 import './App.css'
 import { Card } from './components/Card'
 
@@ -36,11 +36,20 @@ function App() {
   const [flipped, setFlipped] = useState<Card[]>([])
   //tracks the currently flipped cards
   const [lockBoard, setLockBoard] = useState(false)
-
+  //use ref rules
+  //useRef is a React Hook that lets you reference a value that’s not needed for rendering.
+  //first thought - but cards is used for rendering right?
+  //chatgpt says its okay as long as we do not use cardRef for rendering
+  //Do not write or read ref.current during rendering, except for initialization. This makes your component’s behavior unpredictable.
+  //but what we are doing is ok cause it inside a effect
+  const cardsRef = useRef(cards);
+  useEffect(() => { cardsRef.current = cards; }, [cards]);
+  const lockBoardRef = useRef(lockBoard);
+  useEffect(() => { lockBoardRef.current = lockBoard; }, [lockBoard]);
   const handleCardClick = useCallback(
     (clickedCardId: string) => {
-      const clickedCard = cards?.find(card => card.id === clickedCardId)
-  if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || lockBoard) {
+      const clickedCard = cardsRef.current?.find(card => card.id === clickedCardId)
+  if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || lockBoardRef.current) {
     return
   } 
   //card.isFlipped = true
@@ -54,21 +63,22 @@ function App() {
     }
   }))
   setFlipped(prev => [...prev, clickedCard])
-  }, [lockBoard]
+  }, []
   )
   
-  const valuesAreEqual = flipped[0]?.value === flipped[1]?.value
+  
 
   useEffect(() => {
     
     if(flipped.length === 2){
+      const valuesAreEqual = flipped[0]?.value === flipped[1]?.value
       const reset = () => {
-      setFlipped([])
-      setLockBoard(false)
-    }
-    const matched = () => {
-    const value = flipped[0].value
-          setCards(cards?.map(card => {
+        setFlipped([])
+        setLockBoard(false)
+      }
+      const matched = () => {
+        const value = flipped[0].value
+          setCards(prev => prev?.map(card => {
           if (card.value === value) {
             return {...card, isMatched: true}
           } else {
@@ -76,10 +86,10 @@ function App() {
           }
           }))
           reset()
-    }
-    const notMatched = () => {
-    setTimeout(() => {
-          setCards(cards?.map(card => {
+      }
+      const notMatched = () => {
+        setTimeout(() => {
+          setCards(prev => prev?.map(card => {
           if (card.id === flipped[0].id || card.id === flipped[1].id) {
             return {...card, isFlipped:false}
           } else {
@@ -88,7 +98,7 @@ function App() {
         }))
         reset()
         }, 500)
-    }
+      }
       setLockBoard(true)
       if(valuesAreEqual) matched()
       else notMatched()  
