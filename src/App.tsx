@@ -45,15 +45,15 @@ function App() {
   //card.isFlipped = true
   //not the way to do it
   //refer updating objects inside arrays learn react article
-  setCards(cards?.map(card => {
+  setCards(prev => prev?.map(card => {
     if (card.id === clickedCard.id) {
       return {...card, isFlipped: true}
     } else {
       return card
     }
   }))
-  setFlipped([...flipped, clickedCard])
-  }, [lockBoard, cards, flipped]
+  setFlipped(prev => [...prev, clickedCard])
+  }, [lockBoard]
   )
   const reset = () => {
     setFlipped([])
