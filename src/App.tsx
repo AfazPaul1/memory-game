@@ -105,7 +105,7 @@ function App() {
     }
   }, [flipped])
 
-const content = cards?.map((card) =>  <Card key={card.id} onClick={handleCardClick} id = {card.id} value={card.value} isFlipped={card.isFlipped} isMatched={card.isMatched}  />)
+const content = cards?.map((card) =>  <Card key={card.id} onClick={handleCardClick} {...card}  />)
   
   return (
     <>
