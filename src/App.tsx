@@ -73,7 +73,7 @@ function App() {
   const notMatched = () => {
   setTimeout(() => {
         setCards(cards?.map(card => {
-        if (card.id === flipped[0].id || flipped[1].id) {
+        if (card.id === flipped[0].id || card.id === flipped[1].id) {
           return {...card, isFlipped:false}
         } else {
           return card
