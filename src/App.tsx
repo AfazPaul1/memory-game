@@ -34,35 +34,40 @@ function App() {
       }
   const [cards, setCards] = useState<Card[] | undefined>(createDeck())
   const [flipped, setFlipped] = useState<Card[]>([])
-  //tracks the currently flipped cards
   const [lockBoard, setLockBoard] = useState(false)
-  //use ref rules
-  //useRef is a React Hook that lets you reference a value that’s not needed for rendering.
-  //first thought - but cards is used for rendering right?
-  //chatgpt says its okay as long as we do not use cardRef for rendering
-  //Do not write or read ref.current during rendering, except for initialization. This makes your component’s behavior unpredictable.
-  //but what we are doing is ok cause it inside a effect
   const cardsRef = useRef(cards);
   useEffect(() => { cardsRef.current = cards; }, [cards]);
   const lockBoardRef = useRef(lockBoard);
   useEffect(() => { lockBoardRef.current = lockBoard; }, [lockBoard]);
   const handleCardClick = useCallback(
     (clickedCardId: string) => {
-      const clickedCard = cardsRef.current?.find(card => card.id === clickedCardId)
-  if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || lockBoardRef.current) {
-    return
-  } 
-  //card.isFlipped = true
-  //not the way to do it
-  //refer updating objects inside arrays learn react article
-  setCards(prev => prev?.map(card => {
+  
+  const clickedCard = cardsRef.current?.find(card => card.id === clickedCardId)
+  
+  setCards(prev => {
+    if(!prev) return prev;
+    const flippedUnmatched = prev.filter(card => card.isFlipped && !card.isMatched)
+    const clickedCard = prev.find(card => card.id === clickedCardId)
+    if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || flippedUnmatched.length >=2) {
+      console.log('no');
+      
+    return prev
+    }
+    return prev?.map(card => {
     if (card.id === clickedCard.id) {
       return {...card, isFlipped: true}
     } else {
       return card
     }
-  }))
-  setFlipped(prev => [...prev, clickedCard])
+  })})
+  
+  setFlipped(prev => {
+    if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched) return prev
+    if((prev.find(card => card.id === clickedCardId))) return prev
+    return [...prev, clickedCard]
+  }
+  )
+   
   }, []
   )
   
@@ -105,7 +110,7 @@ function App() {
     }
   }, [flipped])
 
-const content = cards?.map((card) =>  <Card key={card.id} onClick={handleCardClick} id = {card.id} value={card.value} isFlipped={card.isFlipped} isMatched={card.isMatched}  />)
+const content = cards?.map((card) =>  <Card key={card.id} onClick={handleCardClick} {...card}  />)
   
   return (
     <>
