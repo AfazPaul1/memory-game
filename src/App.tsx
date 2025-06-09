@@ -1,4 +1,4 @@
-import {  useEffect, useState } from 'react'
+import {  useCallback, useEffect, useState } from 'react'
 import './App.css'
 import { Card } from './components/Card'
 
@@ -37,7 +37,8 @@ function App() {
   //tracks the currently flipped cards
   const [lockBoard, setLockBoard] = useState(false)
 
-  const handleCardClick = (clickedCard: Card) => {
+  const handleCardClick = useCallback(
+    (clickedCard: Card) => {
   if (clickedCard.isFlipped || clickedCard.isMatched || lockBoard) {
     return
   } 
@@ -52,7 +53,8 @@ function App() {
     }
   }))
   setFlipped([...flipped, clickedCard])
-  }
+  }, [lockBoard, cards, flipped]
+  )
   const reset = () => {
     setFlipped([])
     setLockBoard(false)
