@@ -104,11 +104,11 @@ function App() {
 const content = cards?.map((card) =>  <Card key={card.id} onClick={handleCardClick} {...card}  />)
   
   return (
-    <>
-      <div className='grid grid-cols-4 gap-3 p-3 justify-items-center align-items-center' >
+    <div className='min-h-screen flex items-center justify-center bg-gray-100'>
+      <div className='grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 p-1 sm:gap-4 sm:p-2 justify-items-center align-items-center' >
         {content}
       </div>
-    </>
+    </div>
   )
 }
 
