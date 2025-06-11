@@ -1,4 +1,4 @@
-import {  useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { Card } from './components/Card'
 import { useDeckStore } from './store/store'
@@ -28,7 +28,7 @@ function secureShuffle(arr:Card[]):Card[] {
 function App() {
 
   const cardsZus = useDeckStore((state) => state.cards)
-  const flipCard = useDeckStore((state) => state.flipCard)
+  
   
   const createDeck = () => {
         const deck =  secureShuffle(values.flatMap((value) => [
@@ -38,7 +38,7 @@ function App() {
         return deck
       }
   const [cards, setCards] = useState<Card[] | undefined>(createDeck())
-  const handleCardClick = useCallback((clickedCardIndex: number) => flipCard(clickedCardIndex), [])
+  
   
   
 
@@ -83,7 +83,7 @@ function App() {
     }
   }, [cards])
 
-const content = cardsZus?.map((card, index) =>  <Card key={card.id} index={index} onClick={handleCardClick} {...card}  />)
+const content = cardsZus?.map((card, index) =>  <Card key={card.id} index={index} {...card}  />)
   
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-100'>
