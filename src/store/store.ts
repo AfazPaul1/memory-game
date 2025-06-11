@@ -10,7 +10,9 @@ interface Card {
 
   interface DeckState {
     cards: Card[],
-    flipCard: (clickedCardIndex: number) => void
+    flipCard: (clickedCardIndex: number) => void,
+    matched: () => void,
+    unMatched: () => void,
   }
 const values = ["cat", "dog", "cow", "chicken", "donkey"]
 
@@ -40,7 +42,14 @@ const useDeckStore = create<DeckState>()(
             const clickedCard = state.cards[clickedCardIndex]
             if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || flippedUnmatched.length >=2) return
             clickedCard.isFlipped = true
-        })
+        }),
+        matched: () => set((state) => {
+            state.cards.map(card => {if(card.isFlipped && !card.isMatched) return card.isMatched = true})
+        }),
+        unMatched: () => set((state) => {
+            state.cards.map(card => {if(card.isFlipped && !card.isMatched) return card.isFlipped = false})
+        }
+        )
     })
     )
 )
