@@ -28,7 +28,7 @@ function secureShuffle(arr:Card[]):Card[] {
 function App() {
 
   const cardsZus = useDeckStore((state) => state.cards)
-  console.log(cardsZus);
+  const flipCard = useDeckStore((state) => state.flipCard)
   
   const createDeck = () => {
         const deck =  secureShuffle(values.flatMap((value) => [
@@ -38,30 +38,7 @@ function App() {
         return deck
       }
   const [cards, setCards] = useState<Card[] | undefined>(createDeck())
-  const handleCardClick = useCallback(
-    (clickedCardId: string) => {
-  
-  
-  setCards(prev => {
-    if(!prev) return prev;
-    const flippedUnmatched = prev.filter(card => card.isFlipped && !card.isMatched)
-    const clickedCard = prev.find(card => card.id === clickedCardId)
-    if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || flippedUnmatched.length >=2) {
-      //console.log('no');
-      
-    return prev
-    }
-    return prev?.map(card => {
-    if (card.id === clickedCard.id) {
-      return {...card, isFlipped: true}
-    } else {
-      return card
-    }
-  })})
-  
-   
-  }, []
-  )
+  const handleCardClick = useCallback((clickedCardIndex: number) => flipCard(clickedCardIndex), [])
   
   
 
@@ -106,7 +83,7 @@ function App() {
     }
   }, [cards])
 
-const content = cards?.map((card) =>  <Card key={card.id} onClick={handleCardClick} {...card}  />)
+const content = cardsZus?.map((card, index) =>  <Card key={card.id} index={index} onClick={handleCardClick} {...card}  />)
   
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-100'>

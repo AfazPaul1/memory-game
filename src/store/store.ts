@@ -1,5 +1,5 @@
 import {create} from 'zustand'
-
+import { immer } from 'zustand/middleware/immer'
 
 interface Card {
     id:string,
@@ -10,6 +10,7 @@ interface Card {
 
   interface DeckState {
     cards: Card[],
+    flipCard: (clickedCardIndex: number) => void
   }
 const values = ["cat", "dog", "cow", "chicken", "donkey"]
 
@@ -31,9 +32,17 @@ const createDeck = () => {
       }
 
 const useDeckStore = create<DeckState>()(
-    (set) => ({
+    immer(
+        (set) => ({
         cards: createDeck(),
+        flipCard: (clickedCardIndex) => set((state) => {
+            const flippedUnmatched = state.cards.filter(card => card.isFlipped && !card.isMatched)
+            const clickedCard = state.cards[clickedCardIndex]
+            if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || flippedUnmatched.length >=2) return
+            clickedCard.isFlipped = true
+        })
     })
+    )
 )
 
 export {useDeckStore}
