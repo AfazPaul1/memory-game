@@ -10,7 +10,7 @@ let renderCount = 0
 
 export const Card = React.memo(function Card({id, value, isFlipped, isMatched, onClick,} : propTypes) {
     renderCount++
-    console.log('rendering', renderCount);
+    //console.log('rendering', renderCount);
     //gameover in 10 moves took just 100 rerenders - strict mode
     
     return (

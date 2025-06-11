@@ -1,6 +1,7 @@
 import {  useCallback, useEffect, useState } from 'react'
 import './App.css'
 import { Card } from './components/Card'
+import { useDeckStore } from './store/store'
 
 interface Card {
     id:string,
@@ -25,6 +26,10 @@ function secureShuffle(arr:Card[]):Card[] {
 }  
 
 function App() {
+
+  const cardsZus = useDeckStore((state) => state.cards)
+  console.log(cardsZus);
+  
   const createDeck = () => {
         const deck =  secureShuffle(values.flatMap((value) => [
           {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
@@ -42,7 +47,7 @@ function App() {
     const flippedUnmatched = prev.filter(card => card.isFlipped && !card.isMatched)
     const clickedCard = prev.find(card => card.id === clickedCardId)
     if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || flippedUnmatched.length >=2) {
-      console.log('no');
+      //console.log('no');
       
     return prev
     }
@@ -61,7 +66,7 @@ function App() {
   
 
   useEffect(() => {
-    console.log('effect');
+    //console.log('effect');
     
     const flippedUnmatched = cards?.filter(card => card.isFlipped && !card.isMatched)
     if(flippedUnmatched?.length === 2){
@@ -70,7 +75,7 @@ function App() {
       const valuesAreEqual = flippedUnmatched[0]?.value === flippedUnmatched[1]?.value
       
       const matched = () => {
-        console.log('matched');
+        //console.log('matched');
         
         const value = flippedUnmatched[0].value
           setCards(prev => prev?.map(card => {
@@ -83,7 +88,7 @@ function App() {
           
       }
       const notMatched = () => {
-        console.log('unmatched');
+        //console.log('unmatched');
         
         setTimeout(() => {
           setCards(prev => prev?.map(card => {
