@@ -46,12 +46,14 @@ const useDeckStore = create<DeckState>()(
         matched: () => set((state) => {
             state.cards.map(card => {if(card.isFlipped && !card.isMatched) return card.isMatched = true})
         }),
-        unMatched: () => set((state) => {
+        unMatched: () => {
+        setTimeout(() => set((state) => {
             state.cards.map(card => {if(card.isFlipped && !card.isMatched) return card.isFlipped = false})
+        }), 500)
         }
-        )
-    })
+        })
     )
 )
+
 
 export {useDeckStore}
