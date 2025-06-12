@@ -1,32 +1,9 @@
-import { useEffect } from 'react'
 import './App.css'
 import { Card } from './components/Card'
-import { useDeckStore } from './store/store'
-
-import { isFlippedUnmatched } from './store/store' 
-
 function App() {
-console.log('render app');
-
-  const cardsZus = useDeckStore((state) => state.cards)
-  const matched = useDeckStore((state) => state.matched)
-  const unMatched = useDeckStore((state) => state.unMatched)
-
-  useEffect(() => {
-    //console.log('effect');
-    
-    const flippedUnmatched = cardsZus.filter(isFlippedUnmatched)
-    if(flippedUnmatched?.length === 2){
-      console.log('effect when length 2');
-      
-      const valuesAreEqual = flippedUnmatched[0]?.value === flippedUnmatched[1]?.value
-      
-      if(valuesAreEqual) matched()
-      else unMatched()  
-    }
-  }, [cardsZus])
-
-const content = cardsZus?.map((card, index) =>  <Card key={card.id} index={index} {...card}  />)
+//console.log('render app');
+//const cardsZus = useDeckStore((state) => state.cards) //app will rerender on every state change
+const content = Array(10).fill(null).map((_, index) =>  <Card key={index} index={index}  />)
   
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-100'>

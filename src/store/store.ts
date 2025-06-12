@@ -1,61 +1,54 @@
 import {create} from 'zustand'
 import { immer } from 'zustand/middleware/immer'
+import type { DeckState } from './deckTypes'
+import { createDeck, isFlippedUnmatched } from './deckUtils'
+//tkdodo bolg working with zustand was helpful
 
-interface Card {
-    id:string,
-    value: string,
-    isFlipped: boolean,
-    isMatched: boolean
-  }
 
-  interface DeckState {
-    cards: Card[],
-    flipCard: (clickedCardIndex: number) => void,
-    matched: () => void,
-    unMatched: () => void,
-  }
-const values = ["cat", "dog", "cow", "chicken", "donkey"]
-
-function secureShuffle(arr:Card[]):Card[] {  
-  const randomValues = new Uint32Array(arr.length)
-  crypto.getRandomValues(randomValues)
-  for (let i = arr.length-1; i > 0; i--) {
-    const j = randomValues[i] % (i+1);
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr
-}
-const createDeck = () => {
-        const deck =  secureShuffle(values.flatMap((value) => [
-          {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
-          {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
-        ]))
-        return deck
-}
-export const isFlippedUnmatched = (card: Card) => card.isFlipped && !card.isMatched 
 
 const useDeckStore = create<DeckState>()(
     immer(
         (set) => ({
         cards: createDeck(),
-        flipCard: (clickedCardIndex) => set((state) => {
-            const flippedUnmatched = state.cards.filter(isFlippedUnmatched)
+        actions: {flipCard: (clickedCardIndex) => set((state) => {
+            let flippedUnmatched = state.cards.filter(isFlippedUnmatched)       
             const clickedCard = state.cards[clickedCardIndex]
             if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || flippedUnmatched.length >=2) return
-            clickedCard.isFlipped = true
+            clickedCard.isFlipped = true            
+            flippedUnmatched = state.cards.filter(isFlippedUnmatched)    
+            if(flippedUnmatched.length == 2){
+                const [a,b] = flippedUnmatched                
+                if(a.value === b.value){
+                    set(() => {
+                        a.isMatched = true
+                        b.isMatched = true
+                    })
+                }
+                else{
+                    setTimeout(() => {
+                      set((state) => {
+                        const [a,b] = state.cards.filter(isFlippedUnmatched) //have to recompute
+                        //cant access a, b proxies defined outside  asynchronously
+                        a.isFlipped = false
+                        b.isFlipped = false
+                        })
+                    }, 500);
+                }
+            }
         }),
-        matched: () => set((state) => {
-            state.cards.forEach(card => { if(isFlippedUnmatched(card)) card.isMatched = true}) //if is a statement not a expression so need the braces around if
-            //no need for map we are just performing side effects we do not need the transformed array
-        }),
-        unMatched: () => {
-        setTimeout(() => set((state) => {
-            state.cards.forEach(card => {if(isFlippedUnmatched(card)) card.isFlipped = false})
-        }), 500)
-        }
-        })
+        }})
     )
 )
 
 
-export {useDeckStore}
+
+//export const useFlipCard = useDeckStore((state) => state.flipCard) we need a function which return this. we can call that. we can call the useStore hook here
+export const useActions = () => useDeckStore((state) => state.actions) //export actions separtely was tricky when we had to pass index export as whole is easy cab directly call and pass arg
+export const useDeck = (index: number) => useDeckStore((state) => state.cards[index])
+
+//this was dumb
+// state.cards.forEach(card => { 
+//                             console.log(isFlippedUnmatched(card));
+//                             if(isFlippedUnmatched(card)) {
+//                             card.isMatched = true
+//                             }})
