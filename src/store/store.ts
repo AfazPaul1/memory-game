@@ -31,24 +31,26 @@ const createDeck = () => {
           {id:crypto.randomUUID(), value, isFlipped: false, isMatched:false},
         ]))
         return deck
-      }
+}
+export const isFlippedUnmatched = (card: Card) => card.isFlipped && !card.isMatched 
 
 const useDeckStore = create<DeckState>()(
     immer(
         (set) => ({
         cards: createDeck(),
         flipCard: (clickedCardIndex) => set((state) => {
-            const flippedUnmatched = state.cards.filter(card => card.isFlipped && !card.isMatched)
+            const flippedUnmatched = state.cards.filter(isFlippedUnmatched)
             const clickedCard = state.cards[clickedCardIndex]
             if (!clickedCard || clickedCard.isFlipped || clickedCard.isMatched || flippedUnmatched.length >=2) return
             clickedCard.isFlipped = true
         }),
         matched: () => set((state) => {
-            state.cards.map(card => {if(card.isFlipped && !card.isMatched) return card.isMatched = true})
+            state.cards.forEach(card => { if(isFlippedUnmatched(card)) card.isMatched = true}) //if is a statement not a expression so need the braces around if
+            //no need for map we are just performing side effects we do not need the transformed array
         }),
         unMatched: () => {
         setTimeout(() => set((state) => {
-            state.cards.map(card => {if(card.isFlipped && !card.isMatched) return card.isFlipped = false})
+            state.cards.forEach(card => {if(isFlippedUnmatched(card)) card.isFlipped = false})
         }), 500)
         }
         })

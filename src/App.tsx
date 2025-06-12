@@ -3,21 +3,19 @@ import './App.css'
 import { Card } from './components/Card'
 import { useDeckStore } from './store/store'
 
- 
+import { isFlippedUnmatched } from './store/store' 
 
 function App() {
+console.log('render app');
 
   const cardsZus = useDeckStore((state) => state.cards)
   const matched = useDeckStore((state) => state.matched)
   const unMatched = useDeckStore((state) => state.unMatched)
-  
-  
-  
 
   useEffect(() => {
     //console.log('effect');
     
-    const flippedUnmatched = cardsZus?.filter(card => card.isFlipped && !card.isMatched)
+    const flippedUnmatched = cardsZus.filter(isFlippedUnmatched)
     if(flippedUnmatched?.length === 2){
       console.log('effect when length 2');
       
